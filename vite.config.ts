@@ -82,6 +82,19 @@ export default defineConfig({
   // Relative asset URLs so the same dist/ works at a domain root AND under a
   // GitHub Pages project subpath (/repo-name/).
   base: './',
+  /**
+   * No SPA history fallback — this is one page, not a router.
+   *
+   * It matters because of how the engine's loader probes for a tool's OPTIONAL
+   * files (styles.css, template.md): it fetches them and treats a non-OK
+   * response as "the tool doesn't ship one". Under the SPA fallback those
+   * requests came back 200 with index.html, so in dev and preview the loader
+   * was handed a page of HTML as the tool's stylesheet — while GitHub Pages,
+   * which has no fallback, correctly 404s and hands it null. Harmless in
+   * practice (the panel never applies tool styles), but it meant local testing
+   * and production disagreed about what the tool actually is.
+   */
+  appType: 'mpa',
   plugins: [lollyTools()],
   resolve: {
     alias: {
