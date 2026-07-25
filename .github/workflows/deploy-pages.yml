@@ -33,16 +33,21 @@ jobs:
           path: lolly-plugins-penpot-d3-charts
 
       # Sibling lolly checkout — SOURCE FILES ONLY. The bundle needs the engine
-      # .ts sources plus the tools/d3 directory; the engine's two runtime deps
-      # (handlebars, ajv) are dependencies of THIS repo and aliased to its
-      # node_modules, so lolly is never npm-installed here.
-      #
-      # No submodule init, unlike the filters plugin: d3 is a first-party tool
-      # in the main repo, not one of the community/ tools.
+      # .ts sources plus the community/d3 tool directory; the engine's two
+      # runtime deps (handlebars, ajv) are dependencies of THIS repo and aliased
+      # to its node_modules, so lolly is never npm-installed here.
       - uses: actions/checkout@v4
         with:
           repository: lolly-tools/lolly
           path: lolly
+
+      # community/ is a submodule (lolly-tools/lolly-tools) and the chart lives
+      # there, so without this the build finds an empty directory. Only this one
+      # is initialised: a recursive init would drag in every shell and service
+      # subrepo and break on any parent-pointer drift.
+      - name: Init community submodule
+        working-directory: lolly
+        run: git submodule update --init community
 
       - uses: actions/setup-node@v4
         with:

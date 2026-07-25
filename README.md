@@ -126,9 +126,18 @@ preloading makes its loader short-circuit before it gets there).
 
 ## Building it
 
-Needs a sibling checkout of [`lolly-tools/lolly`][lollyrepo] — the engine is
-imported from source and the tool is copied out of `tools/d3`. There's no
-published package for either yet.
+Needs a sibling checkout of [`lolly-tools/lolly`][lollyrepo] with its
+`community` submodule initialised — the engine is imported from source and the
+tool is copied out of `community/d3`. There's no published package for either
+yet.
+
+```sh
+git -C ../lolly submodule update --init community
+```
+
+(A lolly checkout also has a byte-identical `tools/d3`, but that path is a
+locally generated profile mount and is gitignored — it doesn't exist in a fresh
+clone, so the build reads `community/` instead.)
 
 ```
 ../

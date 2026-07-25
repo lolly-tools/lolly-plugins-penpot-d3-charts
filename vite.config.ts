@@ -10,11 +10,19 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // defaults to the sibling directory.
 const LOLLY = process.env.LOLLY_DIR ? resolve(process.env.LOLLY_DIR) : resolve(HERE, '../lolly');
 
-/** The one tool this plugin exposes, loaded verbatim from the lolly tree.
- *  Unlike the filters plugin's four community tools, d3 is a first-party tool
- *  and lives under tools/, not the community submodule. */
+/**
+ * The one tool this plugin exposes, loaded verbatim from the lolly tree.
+ *
+ * `community/` — the lolly-tools/lolly-tools submodule — not `tools/`. A lolly
+ * checkout also has `tools/d3`, byte-identical and far easier to find, but it is
+ * a generated profile mount: `/tools` is in lolly's .gitignore, built locally by
+ * scripts/use-profile.ts from the mounted packs. It does not exist in a fresh
+ * clone, so a build pointed there works on a developer's machine and fails in
+ * CI. `community/` is the tracked source of truth, and the same directory the
+ * filters plugin reads.
+ */
 export const TOOL_ID = 'd3';
-const TOOL_DIR = resolve(LOLLY, 'tools', TOOL_ID);
+const TOOL_DIR = resolve(LOLLY, 'community', TOOL_ID);
 
 /**
  * Files the engine's loader may ask for, plus d3 itself.
