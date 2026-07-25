@@ -1,0 +1,28 @@
+{
+  "name": "lolly-penpot-d3-charts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Penpot plugin powered by the Lolly engine — paste a table, get a vector D3 chart on the canvas, styled from your Penpot library colours and typography.",
+  "license": "MPL-2.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && esbuild src/plugin.ts --bundle --format=iife --outfile=dist/plugin.js",
+    "preview": "npm run build && vite preview --port 4404",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "smoke": "npm run build && ./scripts/smoke.sh"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "@penpot/plugin-types": "^1.4.0",
+    "esbuild": "^0.27.0",
+    "typescript": "^5.5.0",
+    "vite": "^8.0.13"
+  },
+  "allowScripts": {
+    "esbuild@0.27.7": true
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "types": ["@penpot/plugin-types"],
+    "paths": {
+      "@lolly-tools/core/host-v1": ["../lolly/packages/core/src/host-v1.ts"],
+      "@lolly-tools/core": ["../lolly/packages/core/src/index.ts"],
+      "@engine/*": ["../lolly/engine/src/*"],
+      // The engine's own two runtime deps. Its sources live in the sibling lolly
+      // tree, so tsc would resolve these bare specifiers against lolly's
+      // node_modules — which CI never installs (only source files are checked
+      // out there). Pin both to THIS repo's copies, mirroring the same aliases
+      // in vite.config.ts.
+      "handlebars": ["./node_modules/handlebars/types/index.d.ts"],
+      "ajv/dist/2020.js": ["./node_modules/ajv/dist/2020.d.ts"]
+    }
+  },
+  "include": ["src/**/*"]
+}

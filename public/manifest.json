@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "name": "Lolly Charts",
+  "description": "Paste a table — from Excel, Sheets, Numbers or plain CSV — and get a clean vector chart on your board. 28 chart types powered by D3, styled from your own library colours and typography, or dialled in by hand. Runs entirely in your browser, nothing is uploaded anywhere.",
+  "code": "plugin.js",
+  "icon": "icon.png",
+  "permissions": [
+    "content:read",
+    "content:write",
+    "library:read"
+  ]
+}

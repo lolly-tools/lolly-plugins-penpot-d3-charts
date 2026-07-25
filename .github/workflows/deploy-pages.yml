@@ -1,0 +1,84 @@
+# Build the plugin and publish dist/ to GitHub Pages.
+#
+# The bundle imports the Lolly engine from a SIBLING checkout and copies the
+# tools/d3 directory in verbatim (see vite.config.ts), so the job clones the
+# public lolly repo next to this one before building. GitHub Pages serves with
+# `Access-Control-Allow-Origin: *`, which is what Penpot's plugin loader needs;
+# users install from:
+#   https://lolly-tools.github.io/lolly-plugins-penpot-d3-charts/manifest.json
+#
+# One-time repo setting: Settings → Pages → Source: "GitHub Actions".
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: lolly-plugins-penpot-d3-charts
+
+      # Sibling lolly checkout — SOURCE FILES ONLY. The bundle needs the engine
+      # .ts sources plus the tools/d3 directory; the engine's two runtime deps
+      # (handlebars, ajv) are dependencies of THIS repo and aliased to its
+      # node_modules, so lolly is never npm-installed here.
+      #
+      # No submodule init, unlike the filters plugin: d3 is a first-party tool
+      # in the main repo, not one of the community/ tools.
+      - uses: actions/checkout@v4
+        with:
+          repository: lolly-tools/lolly
+          path: lolly
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install plugin deps
+        working-directory: lolly-plugins-penpot-d3-charts
+        run: npm install
+
+      - name: Typecheck
+        working-directory: lolly-plugins-penpot-d3-charts
+        run: npm run typecheck
+
+      - name: Build
+        working-directory: lolly-plugins-penpot-d3-charts
+        run: LOLLY_DIR="$GITHUB_WORKSPACE/lolly" npm run build
+
+      # Mounts the tool through the real loader + runtime against the just-built
+      # dist/tools/, and asserts the token contract the panel's on-brand styling
+      # depends on. Catches the tool renaming an input, dropping a section, or
+      # its hook no longer reading color.spectrum.* — all of which would
+      # otherwise ship green and break in the panel.
+      - name: Smoke test
+        working-directory: lolly-plugins-penpot-d3-charts
+        run: LOLLY_DIR="$GITHUB_WORKSPACE/lolly" ./scripts/smoke.sh
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: lolly-plugins-penpot-d3-charts/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
