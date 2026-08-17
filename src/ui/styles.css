@@ -190,7 +190,10 @@ body {
     min-height: 0;
   }
 
-  .preview-max {
+  /* #app.preview-max, not .preview-max: the two-column layout above lives on
+     `#app` (id specificity), so the single-column override has to match the id
+     too or it loses and Expand stays trapped in the left column. */
+  #app.preview-max {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr auto;
     grid-template-areas:
