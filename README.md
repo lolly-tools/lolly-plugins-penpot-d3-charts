@@ -1,6 +1,6 @@
 # Lolly Charts — a Penpot plugin
 
-Paste a table, get a vector chart on your board. 28 chart types drawn by D3,
+Paste a table, get a vector chart on your board. 32 chart types drawn by D3,
 coloured from your own library rather than someone else's brand.
 
 Everything runs in your browser. No account, no upload, no network call — the
@@ -27,9 +27,9 @@ The chart lands as real Penpot shapes: paths, rects and text you can move,
 recolour and export like anything else you drew.
 
 **Chart types.** Bar (vertical and horizontal), line, area, scatter, pie, donut,
-radial bar, radar, treemap, pack, heatmap, histogram, lollipop, dumbbell, slope,
-bump, stream, waterfall, marimekko, parallel, polar, funnel, gauge, waffle,
-sunburst, icicle, chord.
+radial bar, radar, treemap, pack, heatmap, histogram, box plot, violin, beeswarm,
+lollipop, dumbbell, slope, bump, stream, waterfall, marimekko, parallel, polar,
+funnel, gauge, waffle, sunburst, icicle, chord, word cloud.
 
 ## Styling: your library, or your call
 
@@ -74,6 +74,12 @@ real face.
 The **preview** substitutes a system font. The panel is a sandboxed iframe with
 no access to Penpot's font files, so it can't render your brand face — only name
 it. The shape on the board is the one that counts, and it gets the real thing.
+
+It redraws live as you paste and dial settings in. On a wide panel it sits as a
+column beside the scrollable settings; drag the panel narrow and the layout
+stacks. An **Expand** pill over the preview folds the controls away and grows the
+chart to fill the panel, so you can read it at size before committing — Esc or
+the pill brings the controls back.
 
 ---
 
@@ -174,7 +180,7 @@ exists, that every input still carries the `section` the panel groups by, and
 that the token contract above holds in both directions (library colours reach
 the chart in library mode, and are withheld in manual mode).
 
-It can't check the chart itself: all 28 types are drawn by D3 in a browser the
+It can't check the chart itself: all 32 types are drawn by D3 in a browser the
 test doesn't have. A green run means "the two repos still agree", not "the chart
 looks right".
 

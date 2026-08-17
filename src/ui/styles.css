@@ -68,7 +68,38 @@ body {
 /* ── preview stage ────────────────────────────────────────────────────────── */
 
 .preview {
+  position: relative;
   padding: 10px 12px 0;
+}
+
+/* "Expand" — a small pill over the top-left of the stage, matching the filters
+   plugin. It folds the lead and controls away and grows the stage to fill the
+   panel, so a chart can be read at size before it's committed. */
+.stage-pill {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.stage-pill:hover {
+  color: var(--fg);
+  opacity: 1;
+}
+
+.stage-pill.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+  opacity: 1;
 }
 
 .stage {
@@ -96,6 +127,76 @@ body {
   max-width: 100%;
   max-height: 100%;
   height: auto;
+}
+
+/* ── maximised preview ──────────────────────────────────────────────────────
+   "Expand" trades the lead (chart type + data) and the settings for a stage that
+   fills the whole column — the largest view the panel can give before the chart
+   is committed. The footer ("Add to canvas") stays put; Esc or the pill restores
+   the editing layout. */
+.preview-max .lead,
+.preview-max .panel {
+  display: none;
+}
+
+.preview-max .preview {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  padding-bottom: 10px;
+}
+
+.preview-max .stage {
+  flex: 1;
+  max-height: none;
+  min-height: 0;
+}
+
+/* ── wide panel: preview as a side column ────────────────────────────────────
+   Stacked (chart type + data, then preview, then the scrolling settings) is the
+   base and stays on a narrow panel. Once the panel is wide enough for two
+   columns, #app becomes a grid: chart type + data and the preview sit in a left
+   column, the settings scroll in a right column beside them, and the chart stops
+   being capped at 46vh so it can use the height. "Expand" still collapses it all
+   to a single preview-only column. */
+@media (min-width: 640px) {
+  #app {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) minmax(300px, 1fr);
+    grid-template-rows: auto 1fr auto auto;
+    grid-template-areas:
+      'lead    panel'
+      'preview panel'
+      'error   error'
+      'actions actions';
+    column-gap: 4px;
+  }
+
+  .lead { grid-area: lead; }
+  .error { grid-area: error; }
+  .actions { grid-area: actions; }
+  .preview {
+    grid-area: preview;
+    display: flex;
+    min-height: 0;
+    padding-bottom: 10px;
+  }
+  /* min-height:0 lets the settings column scroll inside its row rather than
+     stretching the whole grid past the viewport. */
+  .panel { grid-area: panel; min-height: 0; }
+  .preview .stage {
+    flex: 1;
+    max-height: none;
+    min-height: 0;
+  }
+
+  .preview-max {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+      'preview'
+      'actions';
+  }
 }
 
 .error {
@@ -147,7 +248,7 @@ body {
 }
 
 /*
- * Chart type. The first choice anyone makes in this panel, with 28 options
+ * Chart type. The first choice anyone makes in this panel, with 32 options
  * behind it — as an ordinary 150px row it read as one setting among forty-odd
  * and got lost above the fold. Full width, its own label, and a target sized to
  * be hit rather than aimed at.

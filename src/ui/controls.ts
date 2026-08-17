@@ -8,10 +8,11 @@
  * since the pasted table is a `longtext` and everything else is a one-liner.
  *
  * Unlike the filters plugin, nothing here is hand-listed. Every one of the
- * tool's 46 inputs already carries a `section` in tool.json ("Data", "Chart",
+ * tool's ~95 inputs already carries a `section` in tool.json ("Data", "Chart",
  * "Axes & scale", …), so the panel groups straight off the manifest. A future
  * version of the tool that adds an input gets it rendered, in the right place,
- * with no change on this side.
+ * with no change on this side — an unknown section renders too, appended after
+ * the curated order below.
  *
  * Controls are rebuilt from scratch on every model change rather than diffed.
  * The tool's hooks rewrite their own inputs (picking a chart type re-derives
@@ -44,9 +45,13 @@ const SECTION_ORDER = [
   'Data',
   'Columns',
   'Chart',
-  'Colour & style',
-  'Titles & labels',
+  'Animation',
+  'Labels & bar size',
   'Axes & scale',
+  'Colour & style',
+  'Custom palette',
+  'Titles & labels',
+  'Annotations',
   'Legend',
 ];
 

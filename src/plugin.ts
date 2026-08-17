@@ -17,8 +17,12 @@ import type {
   SelectionInfo,
 } from './messages.ts';
 
+// Opens wide enough for the two-column layout (chart type + data + preview on
+// the left, the scrollable settings on the right; see styles.css) and tall to
+// give both room. Drag it narrower and the layout stacks; the "Expand" pill
+// blows the preview up to fill the panel either way.
 penpot.ui.open('Lolly Charts', `?theme=${penpot.theme}`, {
-  width: 460,
+  width: 760,
   height: 780,
 });
 

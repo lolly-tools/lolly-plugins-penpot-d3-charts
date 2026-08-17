@@ -97,6 +97,7 @@ app.innerHTML = `
   <section class="lead"></section>
   <section class="preview">
     <div class="stage" aria-live="polite"></div>
+    <button type="button" class="stage-pill expand" data-act="expand" aria-pressed="false" title="Expand the preview to fill the panel" hidden>Expand</button>
   </section>
   <p class="error" hidden></p>
   <section class="panel"></section>
@@ -113,7 +114,34 @@ const panel = app.querySelector('.panel') as HTMLElement;
 const sizeEl = app.querySelector('.size') as HTMLElement;
 const errorEl = app.querySelector('.error') as HTMLParagraphElement;
 const placeBtn = app.querySelector('[data-act="place"]') as HTMLButtonElement;
+const expandBtn = app.querySelector('[data-act="expand"]') as HTMLButtonElement;
 const noteEl = app.querySelector('.actions .note') as HTMLElement;
+
+/** Preview maximised — the stage fills the panel with the lead and settings
+ *  folded away, so a chart can be judged full-size before it's committed. A pure
+ *  view preference; it survives every mount and never touches the runtime. */
+let previewMax = false;
+
+/** Maximise or restore the preview. Toggling `.preview-max` on #app is the whole
+ *  mechanism — CSS grows the stage and hides the lead + controls. */
+function setPreviewMax(on: boolean): void {
+  previewMax = on;
+  app.classList.toggle('preview-max', on);
+  expandBtn.classList.toggle('active', on);
+  expandBtn.setAttribute('aria-pressed', String(on));
+  expandBtn.textContent = on ? 'Collapse' : 'Expand';
+  expandBtn.title = on
+    ? 'Shrink the preview and bring the controls back'
+    : 'Expand the preview to fill the panel';
+}
+
+expandBtn.addEventListener('click', () => setPreviewMax(!previewMax));
+
+// Esc restores the controls — they're hidden while the preview is maximised, so
+// this is the fast way back without hunting for the pill.
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && previewMax) setPreviewMax(false);
+});
 
 function showError(message: string | null): void {
   errorEl.hidden = !message;
@@ -243,6 +271,7 @@ function paint(): void {
   }
 
   placeBtn.disabled = !hydrated.trim();
+  expandBtn.hidden = !hydrated.trim();
 }
 
 /** Caret position in a text field, so a rebuild mid-typing doesn't jump the
@@ -271,7 +300,7 @@ function restoreSelection(el: HTMLElement | null | undefined, caret: [number, nu
  * user touches on every single chart.
  *
  * Chart type gets the hero treatment: full width, label above, a tall target.
- * It's the first decision anyone makes here and there are 28 options behind it,
+ * It's the first decision anyone makes here and there are 32 options behind it,
  * so sizing it like a peer of "Bar spacing" buried it.
  */
 function renderLead(): void {
@@ -343,7 +372,7 @@ function renderSize(): void {
 /**
  * Feed a control's value to the runtime, at most one in flight at a time.
  *
- * A slider drag or a fast typist fires `input` far faster than 28 chart types'
+ * A slider drag or a fast typist fires `input` far faster than 32 chart types'
  * worth of D3 can redraw, so letting every event start its own hook run would
  * pile up work the user has already scrolled past. The newest value per input
  * wins and the rest are dropped — the chart the user ends on is always the one

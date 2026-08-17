@@ -116,6 +116,7 @@ export function createHost(initial: TokenSources = EMPTY_SOURCES): ChartHost {
       render: unsupported('Rendering') as never,
       download: unsupported('Downloading') as never,
       file: unsupported('Downloading') as never,
+      imprint: unsupported('Imprinting') as never,
     },
   };
 
