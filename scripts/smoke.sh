@@ -22,6 +22,7 @@ npx esbuild "$HERE/smoke-entry.ts" \
   `# imports would resolve against lolly's node_modules — which CI never` \
   `# installs. Point them at ours, mirroring vite.config.ts + tsconfig.json.` \
   --alias:handlebars="$ROOT/node_modules/handlebars/dist/cjs/handlebars.js" \
-  --alias:ajv/dist/2020.js="$ROOT/node_modules/ajv/dist/2020.js"
+  --alias:ajv/dist/2020.js="$ROOT/node_modules/ajv/dist/2020.js" \
+  --alias:ajv="$ROOT/node_modules/ajv/dist/ajv.js"
 
 TOOLS_DIR="$ROOT/dist/tools" node "$OUT"

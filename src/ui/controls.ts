@@ -7,12 +7,13 @@
  * number (as slider or box), boolean, colour, and text — the last in two shapes,
  * since the pasted table is a `longtext` and everything else is a one-liner.
  *
- * Unlike the filters plugin, nothing here is hand-listed. Every one of the
- * tool's ~95 inputs already carries a `section` in tool.json ("Data", "Chart",
- * "Axes & scale", …), so the panel groups straight off the manifest. A future
- * version of the tool that adds an input gets it rendered, in the right place,
- * with no change on this side — an unknown section renders too, appended after
- * the curated order below.
+ * Unlike the filters plugin, almost nothing here is hand-listed. All but a
+ * handful of the tool's ~130 inputs carry a `section` in tool.json ("Data",
+ * "Chart", "Axes & scale", …), so the panel groups straight off the manifest. A
+ * future version of the tool that adds an input gets it rendered, in the right
+ * place, with no change on this side — an unknown section renders too, appended
+ * after the curated order below. The exceptions are the three sets below:
+ * what the panel places itself, owns, or pins.
  *
  * Controls are rebuilt from scratch on every model change rather than diffed.
  * The tool's hooks rewrite their own inputs (picking a chart type re-derives
@@ -34,6 +35,30 @@ export type OnChange = (id: string, value: InputValue) => void;
  * accidentally break that. Manual mode adds them back (see MANUAL_ONLY).
  */
 export const PANEL_OWNED = new Set(['width', 'height']);
+
+/**
+ * Inputs main.ts places itself, above the preview, rather than inside a
+ * manifest section: the goal, the chart type, the pasted table and the style
+ * layer. Those are the decisions every chart starts from, and the tool ships
+ * them without a `section` precisely so each host can place them its own way.
+ */
+export const LEAD_INPUTS = new Set(['chartIntent', 'chartType', 'data', 'chartStyle']);
+
+/**
+ * Inputs the panel fixes rather than exposes.
+ *
+ * The tool grew four renderers (`renderMode`): classic vector SVG, Observable
+ * Plot's statistical SVG, real Three.js scenes, and cinematic flights. Only the
+ * first fits this plugin. "Add to canvas" works by serialising the drawn SVG out
+ * of the preview and posting it to the sandbox as Penpot shapes, which a WebGL
+ * canvas has nothing to give, and the statistical and 3-D paths pull further
+ * libraries from absolute `/tools/chart/lib/...` URLs that do not exist under a
+ * GitHub Pages project subpath (see ./preview.ts for the same problem with D3
+ * itself). So the panel pins the renderer to `vector`, which leaves `plotType`,
+ * `sceneType` and `cinematicType` hidden behind their own showIf. Lifting the
+ * pin means serving those libraries and finding an answer for canvas output.
+ */
+export const PINNED_INPUTS: Record<string, InputValue> = { renderMode: 'vector' };
 
 /** Shown only when the user has taken styling off the library. */
 export const MANUAL_ONLY = new Set(['palette', 'background', 'textColor']);
@@ -66,7 +91,9 @@ function hexOf(v: InputValue): string {
   return '';
 }
 
-function visible(item: InputModelItem, values: Record<string, InputValue>): boolean {
+/** Honours an input's `showIf` against the current values. Exported because the
+ *  lead controls are placed outside renderControls and must respect it too. */
+export function isVisible(item: InputModelItem, values: Record<string, InputValue>): boolean {
   if (!item.showIf) return true;
   // A showIf value may be a single value or an array of accepted ones.
   return Object.entries(item.showIf).every(([k, v]) =>
@@ -259,8 +286,10 @@ export interface ControlsOptions {
  * Build the sectioned control panel.
  *
  * Sections come from the manifest; an input with no `section` is skipped here,
- * because the only ones the tool leaves unsectioned are the two lead controls
- * (chart type, data) and the two panel-owned size inputs.
+ * because the tool leaves unsectioned only what a host places itself: the lead
+ * controls (LEAD_INPUTS), the panel-owned size inputs (PANEL_OWNED), and the
+ * renderer the panel pins (PINNED_INPUTS, with the type selects its showIf
+ * hides).
  */
 export function renderControls(
   model: InputModelItem[],
@@ -276,7 +305,7 @@ export function renderControls(
     if (!item.section) continue;
     if (PANEL_OWNED.has(item.id) || skip?.has(item.id)) continue;
     if (!manualStyling && MANUAL_ONLY.has(item.id)) continue;
-    if (!visible(item, values)) continue;
+    if (!isVisible(item, values)) continue;
     const list = bySection.get(item.section);
     if (list) list.push(item);
     else bySection.set(item.section, [item]);

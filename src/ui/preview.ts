@@ -23,7 +23,7 @@ const TOOLS_BASE = new URL('tools/', document.baseURI);
 /**
  * Make sure `window.d3` exists before any paint.
  *
- * tools/d3/template.html hardcodes `var LIB = '/tools/d3/lib/d3.min.js'` — an
+ * community/chart/template.html hardcodes `var LIB = '/tools/chart/lib/d3.min.js'`, an
  * absolute path, correct on lolly.tools and wrong everywhere else. Under a
  * GitHub Pages project subpath (/lolly-plugins-penpot-d3-charts/) it 404s, and
  * the chart reports "Chart library failed to load."
@@ -40,7 +40,7 @@ export function ensureD3(): Promise<void> {
   if ((window as { d3?: unknown }).d3) return Promise.resolve();
   d3Ready ??= new Promise<void>((resolve, reject) => {
     const s = document.createElement('script');
-    s.src = new URL('d3/lib/d3.min.js', TOOLS_BASE).href;
+    s.src = new URL('chart/lib/d3.min.js', TOOLS_BASE).href;
     s.onload = () => resolve();
     s.onerror = () => {
       s.remove();

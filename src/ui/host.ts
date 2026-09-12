@@ -9,7 +9,7 @@
  * the panel reads the drawn SVG out of its own preview and posts it to the
  * sandbox.
  *
- * Grepping `host.<something>` across tools/d3/hooks.js yields exactly two:
+ * Grepping `host.<something>` across community/chart/hooks.js yields exactly two:
  * `host.tokens` (colors + resolve) and `host.color`. Everything else here exists
  * only because HostV1 declares it non-optional.
  *

@@ -21,16 +21,15 @@ import type {
 } from '../messages.ts';
 import { createHost, type ChartHost } from './host.ts';
 import { ensureD3, fetchToolFile, paintTemplate, serializeChart } from './preview.ts';
-import { renderControls, renderOne, OPEN_BY_DEFAULT, PANEL_OWNED } from './controls.ts';
+import {
+  renderControls, renderOne, isVisible, OPEN_BY_DEFAULT, PANEL_OWNED, LEAD_INPUTS, PINNED_INPUTS,
+} from './controls.ts';
 import {
   initialStyling, reconcile, renderStyling, type StylingContext, type StylingState,
 } from './styling.ts';
 
 /** The tool id, and the directory it was copied into — see vite.config.ts. */
-const TOOL_ID = 'd3';
-
-/** Ids main.ts renders itself, above the preview, rather than in a section. */
-const LEAD_INPUTS = new Set(['chartType', 'data']);
+const TOOL_ID = 'chart';
 
 // ── plugin channel ────────────────────────────────────────────────────────────
 
@@ -158,7 +157,7 @@ function setNote(text: string): void {
  * Mount (or remount) the chart.
  *
  * A remount is not a nicety: the tool resolves the brand spectrum ONCE, in
- * `onInit` (tools/d3/hooks.js:457), and caches it for every subsequent
+ * `onInit` (community/chart/hooks.js), and caches it for every subsequent
  * `onInput`. So a change to the token document — the user nominating a
  * background swatch, switching to manual, or the file's library changing
  * underneath — cannot reach the chart through setInput. It has to run onInit
@@ -172,6 +171,9 @@ async function mount({ keepValues = true } = {}): Promise<void> {
 
   const carried: Record<string, InputValue> = {};
   if (keepValues) for (const item of model) carried[item.id] = item.value;
+  // The renderer the panel can actually place on a Penpot canvas. Applied last
+  // so it survives a carried value too. See PINNED_INPUTS.
+  Object.assign(carried, PINNED_INPUTS);
 
   unsubscribe?.();
   unsubscribe = null;
@@ -296,18 +298,22 @@ function restoreSelection(el: HTMLElement | null | undefined, caret: [number, nu
 }
 
 /**
- * Chart type and the pasted table, above the preview — the two controls the
- * user touches on every single chart.
+ * The goal, the chart type, the pasted table and the style layer, above the
+ * preview: the controls the user touches on every single chart.
  *
  * Chart type gets the hero treatment: full width, label above, a tall target.
- * It's the first decision anyone makes here and there are 32 options behind it,
+ * It's the decision everything else follows and there are 35 options behind it,
  * so sizing it like a peer of "Bar spacing" buried it.
+ *
+ * Ordered by LEAD_INPUTS, and each one still honours its own showIf, so a lead
+ * control the tool hides in the panel's pinned renderer stays hidden.
  */
 function renderLead(): void {
+  const values: Record<string, InputValue> = Object.fromEntries(model.map((i) => [i.id, i.value]));
   const rows: HTMLElement[] = [];
   for (const id of LEAD_INPUTS) {
     const item = byId(id);
-    if (!item) continue;
+    if (!item || !isVisible(item, values)) continue;
     const built = renderOne(
       item,
       setInput,

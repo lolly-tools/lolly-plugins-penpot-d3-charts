@@ -132,18 +132,16 @@ preloading makes its loader short-circuit before it gets there).
 
 ## Building it
 
-Needs a sibling checkout of [`lolly-tools/lolly`][lollyrepo] with its
-`community` submodule initialised — the engine is imported from source and the
-tool is copied out of `community/d3`. There's no published package for either
-yet.
+Needs a sibling checkout of [`lolly-tools/lolly`][lollyrepo]. The engine is
+imported from source and the tool is copied out of `community/chart`. There's no
+published package for either yet. Since the 2026-09-11 fold, `community/` is a
+plain directory in that repo, so a plain clone is enough and there is no
+submodule step.
 
-```sh
-git -C ../lolly submodule update --init community
-```
-
-(A lolly checkout also has a byte-identical `tools/d3`, but that path is a
+(A lolly checkout also has a byte-identical `tools/chart`, but that path is a
 locally generated profile mount and is gitignored — it doesn't exist in a fresh
-clone, so the build reads `community/` instead.)
+clone, so the build reads `community/` instead. The tool id was `d3` until
+2026-08-27; it is `chart` now, and the old id is retired.)
 
 ```
 ../
@@ -176,13 +174,15 @@ loader needs.
 
 `npm run smoke` mounts the tool through the real loader and runtime and checks
 the seams between this repo and lolly — that every input the panel names still
-exists, that every input still carries the `section` the panel groups by, and
-that the token contract above holds in both directions (library colours reach
-the chart in library mode, and are withheld in manual mode).
+exists, that every input is one the panel can actually reach (it carries the
+`section` the panel groups by, or the panel places it above the preview, pins
+it, or its own showIf hides it under the pinned renderer), and that the token
+contract above holds in both directions (library colours reach the chart in
+library mode, and are withheld in manual mode).
 
-It can't check the chart itself: all 32 types are drawn by D3 in a browser the
-test doesn't have. A green run means "the two repos still agree", not "the chart
-looks right".
+It can't check the chart itself: all 35 vector types are drawn by D3 in a
+browser the test doesn't have. A green run means "the two repos still agree",
+not "the chart looks right".
 
 ## Deploying
 

@@ -25,12 +25,13 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { createHost } from '../src/ui/host.ts';
+import { LEAD_INPUTS, PANEL_OWNED, PINNED_INPUTS } from '../src/ui/controls.ts';
 import type { LibraryColorInfo } from '../src/messages.ts';
 
 // From the runner, not import.meta.url — the bundle lands in node_modules/.cache,
 // nowhere near dist/.
 const TOOLS = resolve(process.env.TOOLS_DIR ?? 'dist/tools');
-const TOOL_ID = 'd3';
+const TOOL_ID = 'chart';
 
 const readToolFile = (path: string): Promise<string> =>
   Promise.resolve(readFileSync(resolve(TOOLS, path), 'utf8'));
@@ -58,28 +59,43 @@ function check(label: string, ok: boolean, detail = ''): void {
 const tool = await loadTool(TOOL_ID, readToolFile);
 
 // Every id the panel drives by name must actually exist in the manifest — a
-// renamed input would otherwise vanish from the panel silently.
-const declared = new Set((tool.manifest.inputs ?? []).map((i) => i.id));
-const named = ['chartType', 'data', 'width', 'height', 'heading', 'palette', 'background', 'textColor'];
+// renamed input would otherwise vanish from the panel silently. The lists come
+// from the panel's own constants, so this cannot drift from what it renders.
+const inputs = tool.manifest.inputs ?? [];
+const declared = new Set(inputs.map((i) => i.id));
+const placed = new Set([...LEAD_INPUTS, ...PANEL_OWNED, ...Object.keys(PINNED_INPUTS)]);
+const named = [...placed, 'heading', 'palette', 'background', 'textColor'];
 const missing = named.filter((id) => !declared.has(id));
 check(`manifest declares every input the panel names (${declared.size} inputs)`, missing.length === 0, missing.join(', '));
 
+/** Would the panel's pinned values hide this input outright? */
+function hiddenByPin(showIf: Record<string, unknown> | undefined): boolean {
+  if (!showIf) return false;
+  return Object.entries(PINNED_INPUTS).some(([key, pinned]) => {
+    if (!(key in showIf)) return false;
+    const want = showIf[key];
+    return Array.isArray(want) ? !want.includes(pinned) : want !== pinned;
+  });
+}
+
 // The panel builds its sections straight off `section`, so an input without one
-// renders nowhere. Only the four the panel places by hand may lack it.
-const unsectioned = (tool.manifest.inputs ?? [])
-  .filter((i) => !i.section)
+// renders nowhere unless the panel places it by hand. Two ways to be legitimate:
+// the panel places or pins it, or the panel's pinned renderer hides it through
+// its own showIf. Anything else the tool adds unsectioned is a control the user
+// can never reach, which is exactly what this catches.
+const stranded = inputs
+  .filter((i) => !i.section && !placed.has(i.id) && !hiddenByPin(i.showIf))
   .map((i) => i.id);
-const expectedUnsectioned = new Set(['chartType', 'data', 'width', 'height']);
 check(
-  'every input carries a section, or is one the panel places itself',
-  unsectioned.every((id) => expectedUnsectioned.has(id)),
-  unsectioned.filter((id) => !expectedUnsectioned.has(id)).join(', '),
+  'every input carries a section, or the panel places, pins or hides it',
+  stranded.length === 0,
+  stranded.join(', '),
 );
 
 // ── mounts at all ─────────────────────────────────────────────────────────────
 
 const bare = createHost();
-const bareRuntime = await createRuntime(tool, bare, {});
+const bareRuntime = await createRuntime(tool, bare, { ...PINNED_INPUTS });
 const bareOut = bareRuntime.getHydrated();
 check('hydrates to an <svg>', bareOut.includes('<svg'));
 check('template carries its render script', bareOut.includes('<script'));
@@ -95,7 +111,7 @@ branded.setTokens({
   textId: null,
   excluded: new Set(),
 });
-const brandedRuntime = await createRuntime(tool, branded, {});
+const brandedRuntime = await createRuntime(tool, branded, { ...PINNED_INPUTS });
 const brandedOut = brandedRuntime.getHydrated();
 
 // The hook folds the resolved spectrum into cfg.brandPalette, which rides into
@@ -120,7 +136,7 @@ manual.setTokens({
   textId: null,
   excluded: new Set(),
 });
-const manualOut = (await createRuntime(tool, manual, {})).getHydrated();
+const manualOut = (await createRuntime(tool, manual, { ...PINNED_INPUTS })).getHydrated();
 check(
   'manual styling withholds the library palette',
   !LIBRARY.some((c) => manualOut.toLowerCase().includes(c.color)),
@@ -137,7 +153,7 @@ papered.setTokens({
   textId: null,
   excluded: new Set(),
 });
-const paperedOut = (await createRuntime(tool, papered, {})).getHydrated();
+const paperedOut = (await createRuntime(tool, papered, { ...PINNED_INPUTS })).getHydrated();
 check('a nominated background colour reaches the chart', paperedOut.toLowerCase().includes('#123456'));
 
 if (failures) {

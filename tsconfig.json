@@ -15,13 +15,16 @@
       "@lolly-tools/core/host-v1": ["../lolly/packages/core/src/host-v1.ts"],
       "@lolly-tools/core": ["../lolly/packages/core/src/index.ts"],
       "@engine/*": ["../lolly/engine/src/*"],
-      // The engine's own two runtime deps. Its sources live in the sibling lolly
-      // tree, so tsc would resolve these bare specifiers against lolly's
-      // node_modules — which CI never installs (only source files are checked
-      // out there). Pin both to THIS repo's copies, mirroring the same aliases
-      // in vite.config.ts.
+      // The runtime deps of the lolly sources this plugin compiles: handlebars
+      // and ajv/dist/2020.js for the engine, plus the bare `ajv` that
+      // @lolly-tools/core's file-operation-v1.ts imports. Those sources live in
+      // the sibling lolly tree, so tsc would resolve these bare specifiers
+      // against lolly's node_modules, which CI never installs (only source
+      // files are checked out there). Pin each to THIS repo's copies, mirroring
+      // the same aliases in vite.config.ts.
       "handlebars": ["./node_modules/handlebars/types/index.d.ts"],
-      "ajv/dist/2020.js": ["./node_modules/ajv/dist/2020.d.ts"]
+      "ajv/dist/2020.js": ["./node_modules/ajv/dist/2020.d.ts"],
+      "ajv": ["./node_modules/ajv/dist/ajv.d.ts"]
     }
   },
   "include": ["src/**/*"]

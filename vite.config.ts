@@ -12,16 +12,17 @@ const LOLLY = process.env.LOLLY_DIR ? resolve(process.env.LOLLY_DIR) : resolve(H
 
 /**
  * The one tool this plugin exposes, loaded verbatim from the lolly tree.
+ * Upstream renamed the tool id `d3` to `chart` on 2026-08-27 (a pure id rename,
+ * inputs untouched), so this reads `community/chart`.
  *
- * `community/` — the lolly-tools/lolly-tools submodule — not `tools/`. A lolly
- * checkout also has `tools/d3`, byte-identical and far easier to find, but it is
- * a generated profile mount: `/tools` is in lolly's .gitignore, built locally by
- * scripts/use-profile.ts from the mounted packs. It does not exist in a fresh
- * clone, so a build pointed there works on a developer's machine and fails in
- * CI. `community/` is the tracked source of truth, and the same directory the
- * filters plugin reads.
+ * `community/`, not `tools/`. A lolly checkout also has `tools/chart`,
+ * byte-identical and far easier to find, but it is a generated profile mount:
+ * `/tools` is in lolly's .gitignore, built locally by scripts/use-profile.ts
+ * from the mounted packs. It does not exist in a fresh clone, so a build
+ * pointed there works on a developer's machine and fails in CI. `community/` is
+ * the tracked source of truth, and the same directory the filters plugin reads.
  */
-export const TOOL_ID = 'd3';
+export const TOOL_ID = 'chart';
 const TOOL_DIR = resolve(LOLLY, 'community', TOOL_ID);
 
 /**
@@ -105,6 +106,11 @@ export default defineConfig({
       // imports would resolve against lolly's node_modules — which CI doesn't
       // install. Pin both to THIS repo's node_modules instead.
       'ajv/dist/2020.js': resolve(HERE, 'node_modules/ajv/dist/2020.js'),
+      // @lolly-tools/core's file-operation-v1.ts imports ajv's package entry
+      // rather than the 2020 build the engine uses. Keep this key AFTER the
+      // deep one above: alias matching runs in order, and a bare 'ajv' also
+      // matches 'ajv/dist/2020.js'.
+      ajv: resolve(HERE, 'node_modules/ajv/dist/ajv.js'),
       handlebars: resolve(HERE, 'node_modules/handlebars/dist/cjs/handlebars.js'),
     },
   },

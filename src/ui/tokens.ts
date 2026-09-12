@@ -4,7 +4,7 @@
  * already knows how to read.
  *
  * This is the whole "on-brand without asking" story, and it works because the
- * tool meets us halfway. `tools/d3/hooks.js` (resolveBrandSpectrum) walks
+ * tool meets us halfway. `community/chart/hooks.js` walks, in its onInit,
  * `host.tokens.colors()` and takes every swatch under `color.spectrum.*` as its
  * categorical palette, falling back to its own shipped hues when there isn't
  * one. And two of its inputs default to `{color.semantic.surface}` /
@@ -25,7 +25,7 @@ import type { LibraryColorInfo } from '../messages.ts';
 
 const color = makeColorApi();
 
-/** Below this the hook ignores the spectrum entirely (hooks.js:394). */
+/** Below this the hook ignores the spectrum entirely (it charts monochrome). */
 const MIN_SPECTRUM = 4;
 /** Past this the hook stops reading, so there's nothing to gain by sending more. */
 const MAX_SPECTRUM = 10;
