@@ -13,15 +13,16 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1"
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
@@ -48,7 +49,7 @@ jobs:
 
       - name: Install plugin deps
         working-directory: lolly-plugins-penpot-d3-charts
-        run: npm install
+        run: npm ci
 
       - name: Typecheck
         working-directory: lolly-plugins-penpot-d3-charts
@@ -68,11 +69,19 @@ jobs:
         run: LOLLY_DIR="$GITHUB_WORKSPACE/lolly" ./scripts/smoke.sh
 
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         with:
           path: lolly-plugins-penpot-d3-charts/dist
 
   deploy:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    permissions:
+      pages: write
+      id-token: write
     needs: build
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     environment:
       name: github-pages

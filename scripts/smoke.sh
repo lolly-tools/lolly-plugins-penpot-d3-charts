@@ -15,7 +15,7 @@ npx esbuild "$HERE/smoke-entry.ts" \
   --outfile="$OUT" \
   --alias:@engine="$LOLLY/engine/src" \
   --alias:@lolly-tools/core/host-v1="$LOLLY/packages/core/src/host-v1.ts" \
-  --alias:@lolly-tools/core="$LOLLY/packages/core/src/index.ts" \
+  --alias:@lolly-tools/core="$LOLLY/packages/core/src" \
   --loader:.json=json \
   --log-level=warning \
   `# The engine's sources sit in the lolly tree, so its bare handlebars/ajv` \

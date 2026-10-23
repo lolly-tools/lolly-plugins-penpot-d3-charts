@@ -1,6 +1,6 @@
 # Lolly Charts — a Penpot plugin
 
-Paste a table, get a vector chart on your board. 32 chart types drawn by D3,
+Paste a table, get a vector chart on your board. 35 chart types drawn by D3,
 coloured from your own library rather than someone else's brand.
 
 Everything runs in your browser. No account, no upload, no network call — the
@@ -197,3 +197,14 @@ the [lolly][lollyrepo] repository's own licence; D3 itself is ISC.
 
 [lolly]: https://lolly.tools
 [lollyrepo]: https://github.com/lolly-tools/lolly
+
+## Compatibility checks
+
+Builds use the sibling Lolly checkout. `dist/build-info.json` records the exact
+plugin and Lolly commits, engine version, bundled tool versions and whether
+source edits were present. Use that record when comparing an installed plugin
+with the current engine.
+
+Pull requests and the weekly scheduled workflow build and check compatibility
+against Lolly main without publishing. Pushes to plugin main and manual workflow
+runs publish only after those checks pass. Dependencies come from `npm ci`.

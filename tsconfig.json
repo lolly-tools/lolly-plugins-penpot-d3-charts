@@ -14,6 +14,7 @@
     "paths": {
       "@lolly-tools/core/host-v1": ["../lolly/packages/core/src/host-v1.ts"],
       "@lolly-tools/core": ["../lolly/packages/core/src/index.ts"],
+      "@lolly-tools/core/*": ["../lolly/packages/core/src/*"],
       "@engine/*": ["../lolly/engine/src/*"],
       // The runtime deps of the lolly sources this plugin compiles: handlebars
       // and ajv/dist/2020.js for the engine, plus the bare `ajv` that

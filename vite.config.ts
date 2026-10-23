@@ -100,7 +100,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@lolly-tools/core/host-v1': resolve(LOLLY, 'packages/core/src/host-v1.ts'),
-      '@lolly-tools/core': resolve(LOLLY, 'packages/core/src/index.ts'),
+      '@lolly-tools/core': resolve(LOLLY, 'packages/core/src'),
       '@engine': resolve(LOLLY, 'engine/src'),
       // The engine's own runtime deps. It lives inside the lolly tree, so its bare
       // imports would resolve against lolly's node_modules — which CI doesn't
