@@ -7,7 +7,7 @@
   "license": "MPL-2.0",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && esbuild src/plugin.ts --bundle --format=iife --outfile=dist/plugin.js",
+    "build": "vite build && esbuild src/plugin.ts --bundle --format=iife --outfile=dist/plugin.js && node scripts/build-info.mjs",
     "preview": "npm run build && vite preview --port 4404",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "smoke": "npm run build && ./scripts/smoke.sh"

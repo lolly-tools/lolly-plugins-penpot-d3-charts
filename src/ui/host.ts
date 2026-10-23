@@ -17,10 +17,12 @@
  * without a single extra control — see ./tokens.ts.
  */
 import { makeColorApi } from '@engine/color-tools.ts';
+import { createTokenSet } from '@engine/tokens.ts';
+import { tokenFamily, tokenAxesOf } from '@engine/token-context.ts';
 import type {
   HostV1, AssetQuery, AssetPickerOpts, Profile, TokenSet,
 } from '@lolly-tools/core/host-v1';
-import { buildTokenSet, PENPOT_SURFACE, type TokenSources } from './tokens.ts';
+import { buildTokenDoc, PENPOT_SURFACE, type TokenSources } from './tokens.ts';
 
 export interface ChartHost extends HostV1 {
   /** Rebuild the token set — the file's library changed, the user nominated a
@@ -41,14 +43,16 @@ export const EMPTY_SOURCES: TokenSources = {
 };
 
 export function createHost(initial: TokenSources = EMPTY_SOURCES): ChartHost {
-  let tokens: TokenSet = buildTokenSet(initial);
+  let document = buildTokenDoc(initial);
+  let tokens: TokenSet = createTokenSet(document);
 
   const host: ChartHost = {
     version: '1',
     shell: 'web',
 
     setTokens(sources) {
-      tokens = buildTokenSet(sources);
+      document = buildTokenDoc(sources);
+      tokens = createTokenSet(document);
     },
 
     log(level, msg, ctx) {
@@ -70,6 +74,8 @@ export function createHost(initial: TokenSources = EMPTY_SOURCES): ChartHost {
       colors: () => Promise.resolve(tokens.colors()),
       resolve: (ref: string) => Promise.resolve(tokens.resolve(ref)),
       themes: () => Promise.resolve(tokens.themes()),
+      family: (role, opts) => tokenFamily(document, role, opts),
+      axes: () => Promise.resolve(tokenAxesOf(document)),
     },
 
     profile: {

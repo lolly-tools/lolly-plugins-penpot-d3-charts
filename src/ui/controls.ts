@@ -42,7 +42,7 @@ export const PANEL_OWNED = new Set(['width', 'height']);
  * layer. Those are the decisions every chart starts from, and the tool ships
  * them without a `section` precisely so each host can place them its own way.
  */
-export const LEAD_INPUTS = new Set(['chartIntent', 'chartType', 'data', 'chartStyle']);
+export const LEAD_INPUTS = new Set(['chartIntent', 'chartType', 'data', 'chartStyle', 'heading', 'subheading']);
 
 /**
  * Inputs the panel fixes rather than exposes.
