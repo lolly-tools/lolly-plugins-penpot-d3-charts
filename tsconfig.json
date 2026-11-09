@@ -24,6 +24,7 @@
       // files are checked out there). Pin each to THIS repo's copies, mirroring
       // the same aliases in vite.config.ts.
       "handlebars": ["./node_modules/handlebars/types/index.d.ts"],
+      "fflate": ["./node_modules/fflate/esm/browser.d.ts"],
       "ajv/dist/2020.js": ["./node_modules/ajv/dist/2020.d.ts"],
       "ajv": ["./node_modules/ajv/dist/ajv.d.ts"]
     }

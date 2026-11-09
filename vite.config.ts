@@ -112,6 +112,8 @@ export default defineConfig({
       // matches 'ajv/dist/2020.js'.
       ajv: resolve(HERE, 'node_modules/ajv/dist/ajv.js'),
       handlebars: resolve(HERE, 'node_modules/handlebars/dist/cjs/handlebars.js'),
+      // The engine's gzip (engine/src/gzip.ts) imports fflate; pin it like the others.
+      fflate: resolve(HERE, 'node_modules/fflate/esm/browser.js'),
     },
   },
   server: {
