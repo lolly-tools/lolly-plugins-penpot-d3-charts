@@ -1,6 +1,6 @@
 {
   "name": "lolly-penpot-d3-charts",
-  "version": "1.1.3",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "description": "Penpot plugin powered by the Lolly engine — paste a table, get a vector D3 chart on the canvas, styled from your Penpot library colours and typography.",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "ajv": "^8.17.1",
+    "fflate": "0.8.3",
     "handlebars": "^4.7.8"
   },
   "devDependencies": {
